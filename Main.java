@@ -1,4 +1,6 @@
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,22 +13,17 @@ public class Main {
         String contenido = lector.leerArchivoComoString(new File(rutaArchivo));
 
         if (contenido.isEmpty()) {
-            System.out.println("El archivo está vacío");
+            System.out.println("El archivo está vacio");
             return;
         }
 
         System.out.println("=== CONTENIDO ORIGINAL ===");
-        System.out.println(contenido);
-        System.out.println("\n");
+        System.out.println(contenido.substring(0, Math.min(200, contenido.length())) + "...\n");
 
         // 2. Obtener caracteres únicos y frecuencias
         TablaFrecuencias tablaFrecuencias = new TablaFrecuencias();
         String simbolos = tablaFrecuencias.ordenarCaracteresUnicos(contenido);
         
-        double[] frecuenciasDouble = new double[256];
-        tablaFrecuencias.calcularFrecuencia(frecuenciasDouble, contenido);
-
-        // Convertir a frecuencias absolutas (enteras)
         int[] frecuencias = new int[simbolos.length()];
         for (int i = 0; i < simbolos.length(); i++) {
             char c = simbolos.charAt(i);
@@ -37,74 +34,81 @@ public class Main {
             frecuencias[i] = contador;
         }
 
-        System.out.println("=== CARACTERES ÚNICOS ===");
-        System.out.println(simbolos);
-        System.out.println("\n");
+    System.out.println("=== CARACTERES UNICOS ===");
+    System.out.println("Total de caracteres unicos: " + simbolos.length());
+    System.out.println();
+
+    for (int i = 0; i < simbolos.length(); i++) {
+        char c = simbolos.charAt(i);
+        if (c == '\n') System.out.println((i+1) + ". [SALTO DE LINEA]");
+        else if (c == ' ') System.out.println((i+1) + ". [ESPACIO]");
+        else System.out.println((i+1) + ". '" + c + "'");
+    }
+    System.out.println();
 
         // 3. Generar códigos Huffman
         ValoresBinarios valoresBinarios = new ValoresBinarios();
         ArrayList<String> codigos = valoresBinarios.valores(simbolos, frecuencias);
 
-        // Crear mapa de caracteres a códigos
         Map<Character, String> huffmanCodes = new HashMap<>();
         for (int i = 0; i < simbolos.length(); i++) {
             huffmanCodes.put(simbolos.charAt(i), codigos.get(i));
         }
 
-        System.out.println("=== CÓDIGOS HUFFMAN ===");
+        System.out.println("=== CODIGOS HUFFMAN ===");
         for (Map.Entry<Character, String> entry : huffmanCodes.entrySet()) {
-            System.out.println("'" + entry.getKey() + "' -> " + entry.getValue());
+            char c = entry.getKey();
+            if (c == '\n') System.out.println("[SALTO DE LINEA] -> " + entry.getValue());
+            else if (c == ' ') System.out.println("[ESPACIO] -> " + entry.getValue());
+            else System.out.println("'" + c + "' -> " + entry.getValue());
         }
         System.out.println("\n");
 
-        // =============== ENCRIPTACIÓN ===============
-        System.out.println("============ ENCRIPTACIÓN ============\n");
+        System.out.println("============ ENCRIPTACION ============\n");
 
         // 4. Codificar el texto a binario
         Encoder encoder = new Encoder(huffmanCodes);
         String textoCodificado = encoder.textToBinary(contenido);
 
-        System.out.println("=== TEXTO EN BINARIO ===");
-        System.out.println(textoCodificado);
-        System.out.println("\n");
+        System.out.println("=== BINARIO (primeros 100 caracteres) ===");
+        System.out.println(textoCodificado.substring(0, Math.min(100, textoCodificado.length())) + "...");
+        System.out.println("Longitud total: " + textoCodificado.length() + " bits\n");
 
-        // 5. Agrupar de 8 en 8
-        String textoCodificadoSeparado = encoder.separateByEight(textoCodificado);
-        System.out.println("=== BINARIO AGRUPADO DE 8 EN 8 ===");
-        System.out.println(textoCodificadoSeparado);
-        System.out.println("\n");
-
-        // 6. Convertir a ASCII (ENCRIPTADO)
-        String bitsSimple = textoCodificado;
-        String textoEncriptado = ToASCII.convertirATexto(bitsSimple);
-
-        System.out.println("=== TEXTO ENCRIPTADO (EN ASCII) ===");
-        System.out.println(textoEncriptado);
-        System.out.println("\n");
-
-        // =============== DESENCRIPTACIÓN ===============
-        System.out.println("============ DESENCRIPTACION ============\n");
-
-        // 7. Convertir ASCII de vuelta a binario
-        String bitsRecuperados = String.format("%8s", Integer.toBinaryString(textoEncriptado.charAt(0) & 0xFF)).replace(' ', '0');
-        for (int i = 1; i < textoEncriptado.length(); i++) {
-            bitsRecuperados += String.format("%8s", Integer.toBinaryString(textoEncriptado.charAt(i) & 0xFF)).replace(' ', '0');
+        // 5. Guardar binario encriptado en archivo
+        try {
+            FileWriter fw = new FileWriter("encriptado.bin");
+            fw.write(textoCodificado);
+            fw.close();
+            System.out.println("✓ Archivo encriptado guardado en: encriptado.bin\n");
+        } catch (IOException e) {
+            System.out.println("Error al guardar: " + e.getMessage());
         }
 
-        System.out.println("=== BINARIO RECUPERADO ===");
-        System.out.println(bitsRecuperados);
-        System.out.println("\n");
+        System.out.println("============ DESENCRIPTACION ============\n");
 
-        // 8. Decodificar de vuelta al texto original
+        // 6. Leer binario del archivo
+        TXTReader lectorBin = new TXTReader();
+        String bitsRecuperados = lectorBin.leerArchivoComoString(new File("encriptado.bin"));
+
+        System.out.println("=== BINARIO RECUPERADO (primeros 100 caracteres) ===");
+        System.out.println(bitsRecuperados.substring(0, Math.min(100, bitsRecuperados.length())) + "...");
+        System.out.println("Longitud: " + bitsRecuperados.length() + " bits\n");
+
+        // 7. Decodificar
         Decoder decoder = new Decoder(huffmanCodes);
         String textoDesencriptado = decoder.binaryToText(bitsRecuperados);
 
-        System.out.println("=== TEXTO DESENCRIPTADO (ORIGINAL) ===");
-        System.out.println(textoDesencriptado);
-        System.out.println("\n");
+        System.out.println("=== TEXTO DESENCRIPTADO ===");
+        System.out.println(textoDesencriptado.substring(0, Math.min(200, textoDesencriptado.length())) + "...\n");
 
-        // Verificar si coincide
+        // Verificación
         System.out.println("=== VERIFICACION ===");
-        System.out.println("¿Original == Desencriptado? " + contenido.equals(textoDesencriptado));
+        boolean esIgual = contenido.equals(textoDesencriptado);
+        System.out.println("¿Original == Desencriptado? " + esIgual);
+        
+        if (!esIgual) {
+            System.out.println("Longitud original: " + contenido.length());
+            System.out.println("Longitud desencriptado: " + textoDesencriptado.length());
+        }
     }
 }
