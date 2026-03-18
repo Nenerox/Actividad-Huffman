@@ -13,14 +13,15 @@ public class Main {
         String contenido = lector.leerArchivoComoString(new File(rutaArchivo));
 
         if (contenido.isEmpty()) {
-            System.out.println("El archivo está vacio");
+            System.out.println("El archivo esta vacio");
             return;
         }
 
         System.out.println("=== CONTENIDO ORIGINAL ===");
-        System.out.println(contenido.substring(0, Math.min(200, contenido.length())) + "...\n");
+        System.out.println(contenido);
+        System.out.println("\n");
 
-        // 2. Obtener caracteres únicos y frecuencias
+        // 2. Obtener caracteres unicos y frecuencias
         TablaFrecuencias tablaFrecuencias = new TablaFrecuencias();
         String simbolos = tablaFrecuencias.ordenarCaracteresUnicos(contenido);
         
@@ -34,19 +35,19 @@ public class Main {
             frecuencias[i] = contador;
         }
 
-    System.out.println("=== CARACTERES UNICOS ===");
-    System.out.println("Total de caracteres unicos: " + simbolos.length());
-    System.out.println();
+        System.out.println("=== CARACTERES UNICOS ===");
+        System.out.println("Total de caracteres unicos: " + simbolos.length());
+        System.out.println();
 
-    for (int i = 0; i < simbolos.length(); i++) {
-        char c = simbolos.charAt(i);
-        if (c == '\n') System.out.println((i+1) + ". [SALTO DE LINEA]");
-        else if (c == ' ') System.out.println((i+1) + ". [ESPACIO]");
-        else System.out.println((i+1) + ". '" + c + "'");
-    }
-    System.out.println();
+        for (int i = 0; i < simbolos.length(); i++) {
+            char c = simbolos.charAt(i);
+            if (c == '\n') System.out.println((i+1) + ". [SALTO DE LINEA]");
+            else if (c == ' ') System.out.println((i+1) + ". [ESPACIO]");
+            else System.out.println((i+1) + ". '" + c + "'");
+        }
+        System.out.println();
 
-        // 3. Generar códigos Huffman
+        // 3. Generar codigos Huffman
         ValoresBinarios valoresBinarios = new ValoresBinarios();
         ArrayList<String> codigos = valoresBinarios.valores(simbolos, frecuencias);
 
@@ -79,7 +80,7 @@ public class Main {
             FileWriter fw = new FileWriter("encriptado.bin");
             fw.write(textoCodificado);
             fw.close();
-            System.out.println("✓ Archivo encriptado guardado en: encriptado.bin\n");
+            System.out.println("Archivo encriptado guardado en: encriptado.bin\n");
         } catch (IOException e) {
             System.out.println("Error al guardar: " + e.getMessage());
         }
@@ -99,12 +100,13 @@ public class Main {
         String textoDesencriptado = decoder.binaryToText(bitsRecuperados);
 
         System.out.println("=== TEXTO DESENCRIPTADO ===");
-        System.out.println(textoDesencriptado.substring(0, Math.min(200, textoDesencriptado.length())) + "...\n");
+        System.out.println(textoDesencriptado);
+        System.out.println("\n");
 
-        // Verificación
+        // Verificacion
         System.out.println("=== VERIFICACION ===");
         boolean esIgual = contenido.equals(textoDesencriptado);
-        System.out.println("¿Original == Desencriptado? " + esIgual);
+        System.out.println("Original == Desencriptado? " + esIgual);
         
         if (!esIgual) {
             System.out.println("Longitud original: " + contenido.length());
