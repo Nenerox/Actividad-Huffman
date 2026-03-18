@@ -1,4 +1,8 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class TXTReader {
     public String leerArchivoComoString(File archivo) {
@@ -6,9 +10,7 @@ public class TXTReader {
         try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
             String linea;
             while ((linea = br.readLine()) != null) {
-                linea = linea.trim();
-                if (linea.isEmpty() || linea.startsWith("#")) continue;
-                sb.append(linea).append(' ');
+                sb.append(linea).append("\n");
             }
         } catch (FileNotFoundException e) {
             System.out.println("Error al leer el archivo: " + e.getMessage());
