@@ -1,4 +1,11 @@
+import java.util.HashMap;
+
 public class TablaFrecuencias {
+    private HashMap<Character, Double> frecuencias;
+
+    public TablaFrecuencias() {
+        frecuencias = new HashMap<>();
+    }
 
     public String ordenarCaracteresUnicos(String contenido) {
         boolean[] visto = new boolean[256];
@@ -29,4 +36,5 @@ public class TablaFrecuencias {
         }
         return frecuencias;
     }
+
 }
