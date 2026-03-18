@@ -1,7 +1,7 @@
 class Nodo {
-	int data;
+	double data;
 	Nodo left, right;
-	Nodo(int x) {
+	Nodo(double x) {
 		data = x;
 		left = null;
 		right = null;
