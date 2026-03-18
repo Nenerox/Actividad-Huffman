@@ -6,12 +6,13 @@ public class Main {
         TXTReader lector = new TXTReader();
         String contenido = lector.leerArchivoComoString(new File(rutaArchivo));
 
-        double[] frecuencias = new double[256];
+        double[] frecuencias = new double[contenido.length()];
         TablaFrecuencias tablaFrecuencias = new TablaFrecuencias();
 
         String contenidoEnString = tablaFrecuencias.ordenarCaracteresUnicos(contenido);
 
         tablaFrecuencias.calcularFrecuencia(frecuencias, contenido);
+        System.out.println(frecuencias);
 
     }
 }
