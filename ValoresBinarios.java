@@ -3,10 +3,7 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 
 public class ValoresBinarios {
-    String simbolos;
-    int[] frecuencia;
-
-    PriorityQueue<Nodo> pq = new PriorityQueue<>(Comparator.comparingInt(n -> n.data));
+    PriorityQueue<Nodo> pq = new PriorityQueue<>(Comparator.comparingDouble(n -> n.data));
 
     private void preOrder(Nodo root, ArrayList<String> codigos, String binario) {
 		if (root == null) return;
@@ -20,7 +17,7 @@ public class ValoresBinarios {
 		preOrder(root.right, codigos, binario + "1");
 	}
 
-    public ArrayList<String> valores(String simbolos, int[] frecuencias) {
+    public ArrayList<String> valores(String simbolos, double[] frecuencias) {
         int n = simbolos.length();
 
         for (int i = 0; i < n; i++) {
